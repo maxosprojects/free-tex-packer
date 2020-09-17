@@ -24,10 +24,12 @@ class MainLayout extends React.Component {
             about: false,
             editCustomExporter: false,
             updater: false,
-            sheetSplitter: false
+            sheetSplitter: false,
+            importHook: null
         };
 
         this.closeMessage = this.closeMessage.bind(this);
+        this.hookImport = this.hookImport.bind(this);
         
         Observer.on(GLOBAL_EVENT.SHOW_MESSAGE, this.showMessage, this);
         Observer.on(GLOBAL_EVENT.SHOW_SHADER, this.showShader, this);
@@ -92,13 +94,17 @@ class MainLayout extends React.Component {
     hideSheetSplitter() {
         this.setState({sheetSplitter: false});
     }
+
+    hookImport(fn) {
+        this.setState({importHook: fn});
+    }
     
     render() {
         let shader = this.state.shader ? (<ProcessingShader/>) : null;
         let about = this.state.about ? (<About/>) : null;
         let editCustomExporter = this.state.editCustomExporter ? (<EditCustomExporter/>) : null;
         let updater = this.state.updater ? (<Updater data={this.state.updater}/>) : null;
-        let sheetSplitter = this.state.sheetSplitter ? (<SheetSplitter/>) : null;
+        let sheetSplitter = this.state.sheetSplitter ? (<SheetSplitter importHook={this.state.importHook}/>) : null;
         
         return (
             
@@ -106,7 +112,7 @@ class MainLayout extends React.Component {
                 <MainHeader/>
                 
                 <div className="main-layout border-color-gray">
-                    <ImagesList/>
+                    <ImagesList hookImport={this.hookImport}/>
                     <PackProperties/>
                     <PackResults/>
                     <OldBrowserBlocker/>

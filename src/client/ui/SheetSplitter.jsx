@@ -34,7 +34,9 @@ class SheetSplitter extends React.Component {
 
         this.buffer = document.createElement('canvas');
         
+        this.doImport = this.doImport.bind(this);
         this.doSplit = this.doSplit.bind(this);
+        this.splitIntoFiles = this.splitIntoFiles.bind(this);
         this.selectTexture = this.selectTexture.bind(this);
         this.selectDataFile = this.selectDataFile.bind(this);
         this.updateFrames = this.updateFrames.bind(this);
@@ -75,15 +77,39 @@ class SheetSplitter extends React.Component {
         event.stopPropagation();
         return false;
     }
+
+    doImport() {
+        let files = this.splitIntoFiles();
+
+        let loaded = {};
+        
+        files.forEach(aFile => {
+            let img = new Image();
+            let base64Image = 'data:image/' + aFile.ext + ';base64,' + aFile.base64
+            img.src = base64Image;
+            img._base64 = base64Image;
+            loaded[aFile.name] = img;
+        });
+
+        this.props.importHook(loaded);
+    }
     
     doSplit() {
         Observer.emit(GLOBAL_EVENT.SHOW_SHADER);
         
+        let files = this.splitIntoFiles();
+        
+        Downloader.run(files, this.textureName + '.zip');
+
+        Observer.emit(GLOBAL_EVENT.HIDE_SHADER);
+    }
+
+    splitIntoFiles() {
         if(!this.frames || !this.frames.length) {
             Observer.emit(GLOBAL_EVENT.HIDE_SHADER);
             Observer.emit(GLOBAL_EVENT.SHOW_MESSAGE, I18.f('SPLITTER_ERROR_NO_FRAMES'));
             
-            return;
+            return [];
         }
         
         let ctx = this.buffer.getContext('2d');
@@ -140,13 +166,12 @@ class SheetSplitter extends React.Component {
             files.push({
                 name: item.name,
                 content: base64,
-                base64: base64
+                base64: base64,
+                ext
             });
         }
-        
-        Downloader.run(files, this.textureName + '.zip');
 
-        Observer.emit(GLOBAL_EVENT.HIDE_SHADER);
+        return files;
     }
 
     selectTexture(e) {
@@ -417,6 +442,7 @@ class SheetSplitter extends React.Component {
                         </table>
 
                         <div>
+                            <div className="btn back-800 border-color-gray color-white" onClick={this.doImport}>{I18.f("IMPORT")}</div>
                             <div className="btn back-800 border-color-gray color-white" onClick={this.doSplit}>{I18.f("SPLIT")}</div>
                             <div className="btn back-800 border-color-gray color-white" onClick={this.close}>{I18.f("CLOSE")}</div>
                         </div>

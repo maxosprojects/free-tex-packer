@@ -4,6 +4,7 @@ const argv = require('optimist').argv;
 const windowStateKeeper = require('electron-window-state');
 const {app, BrowserWindow, ipcMain, Menu, shell} = require('electron');
 const {autoUpdater} = require("electron-updater");
+const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 
 let mainWindow;
 let RECENT_PROJECTS = [];
@@ -17,6 +18,12 @@ let CURRENT_PROJECT_MODIFIED = false;
 function createWindow() {
 	let w = 1300;
 	let h = 700;
+
+    if (argv.env === 'development') {
+        installExtension(REACT_DEVELOPER_TOOLS)
+            .then((name) => console.log(`Added Extension:  ${name}`))
+            .catch((err) => console.log('An error occurred: ', err));
+    }
 
 	if(process.platform === "win32") {
 		w = 1320;
@@ -77,12 +84,12 @@ function createWindow() {
 			sendMessage({actionName: 'project-load', custom: process.argv[1]});
 		}
 
-        autoUpdater.checkForUpdates();
+        // autoUpdater.checkForUpdates();
     });
 
     mainWindow.webContents.on('context-menu', showInputContextMenu);
 
-    startAutoUpdater();
+    // startAutoUpdater();
 
     onProjectUpdated();
 }

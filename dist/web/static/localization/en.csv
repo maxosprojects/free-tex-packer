@@ -132,9 +132,10 @@ CONTEXT_MENU_COPY;Copy
 CONTEXT_MENU_PASTE;Paste
 CONTEXT_MENU_DELETE;Delete
 CONTEXT_MENU_SELECT_ALL;Select all
-SPLIT;Split
+SPLIT;Split Out
+IMPORT;Import
 SELECT_TEXTURE;Texture
 SELECT_DATA_FILE;Data file
-SPLITTER;Split sheet
+SPLITTER;Split / Import sheet
 SPLITTER_ERROR_NO_FRAMES;Sprites not found. Probably, atlas format is incorrect.
 HOLD_TRIM;Hold trim:

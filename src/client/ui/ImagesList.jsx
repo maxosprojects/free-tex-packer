@@ -41,6 +41,8 @@ class ImagesList extends React.Component {
 		window.addEventListener("keydown", this.handleKeys, false);
 
         this.state = {images: {}};
+
+        props.hookImport(this.loadImagesComplete);
     }
     
     static get i() {

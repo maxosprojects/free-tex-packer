@@ -62,7 +62,8 @@
     "license": "ISC",
     "devDependencies": {
         "electron": "^4.0.4",
-        "electron-builder": "^20.38.5"
+        "electron-builder": "^20.38.5",
+        "electron-devtools-installer": "^3.1.1"
     },
     "dependencies": {
         "electron-log": "^2.2.17",
