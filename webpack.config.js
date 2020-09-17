@@ -29,7 +29,7 @@ if (argv.build) {
     let outputDir;
 
     if (PLATFORM === 'web') {
-        outputDir = 'web/';
+        outputDir = './';
     }
 
     if (PLATFORM === 'electron') {
@@ -50,7 +50,7 @@ else {
 let config = {
     entry: entry,
     output: {
-        path: __dirname + "/dist",
+        path: __dirname + (PLATFORM === 'web' ? "/docs" : "dist"),
         filename: output
     },
     devtool: devtool,
