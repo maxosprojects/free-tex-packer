@@ -192,7 +192,7 @@ class ImagesList extends React.Component {
                 images[name] = data[name];
             }
 
-            images = this.sortImages(images);
+            // images = this.sortImages(images);
 
             this.setState({images: images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
@@ -476,7 +476,7 @@ class ImagesList extends React.Component {
         }
         
         if(deletedCount > 0) {
-            images = this.sortImages(images);
+            // images = this.sortImages(images);
 
             this.setState({images: images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);

@@ -35025,14 +35025,14 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
           for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
             var name = _step2.value;
             images[name] = data[name];
-          }
+          } // images = this.sortImages(images);
+
         } catch (err) {
           _iterator2.e(err);
         } finally {
           _iterator2.f();
         }
 
-        images = this.sortImages(images);
         this.setState({
           images: images
         });
@@ -35358,7 +35358,7 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
       }
 
       if (deletedCount > 0) {
-        images = this.sortImages(images);
+        // images = this.sortImages(images);
         this.setState({
           images: images
         });
