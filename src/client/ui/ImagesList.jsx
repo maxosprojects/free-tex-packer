@@ -31,18 +31,18 @@ class ImagesList extends React.Component {
         this.onFilesDrop = this.onFilesDrop.bind(this);
         this.handleImageItemSelected = this.handleImageItemSelected.bind(this);
         this.handleImageClearSelection = this.handleImageClearSelection.bind(this);
+        this.imagesImported = this.imagesImported.bind(this);
         
         Observer.on(GLOBAL_EVENT.IMAGE_ITEM_SELECTED, this.handleImageItemSelected, this);
         Observer.on(GLOBAL_EVENT.IMAGE_CLEAR_SELECTION, this.handleImageClearSelection, this);
         Observer.on(GLOBAL_EVENT.FS_CHANGES, this.handleFsChanges, this);
+        Observer.on(GLOBAL_EVENT.IMAGES_IMPORTED, this.imagesImported, this);
 		
 		this.handleKeys = this.handleKeys.bind(this);
 		
 		window.addEventListener("keydown", this.handleKeys, false);
 
         this.state = {images: {}};
-
-        props.hookImport(this.loadImagesComplete);
     }
     
     static get i() {
@@ -197,6 +197,12 @@ class ImagesList extends React.Component {
             this.setState({images: images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
         }
+    }
+
+    imagesImported(images) {
+        this.setState({
+            images: {}
+        }, this.loadImagesComplete.bind(this, images));
     }
     
     sortImages(images) {

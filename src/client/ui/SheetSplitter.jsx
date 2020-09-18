@@ -81,17 +81,17 @@ class SheetSplitter extends React.Component {
     doImport() {
         let files = this.splitIntoFiles();
 
-        let loaded = {};
+        let images = {};
         
         files.forEach(aFile => {
             let img = new Image();
             let base64Image = 'data:image/' + aFile.ext + ';base64,' + aFile.base64
             img.src = base64Image;
             img._base64 = base64Image;
-            loaded[aFile.name] = img;
+            images[aFile.name] = img;
         });
 
-        this.props.importHook(loaded);
+        Observer.emit(GLOBAL_EVENT.IMAGES_IMPORTED, images);
     }
     
     doSplit() {

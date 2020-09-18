@@ -30460,7 +30460,8 @@ var GLOBAL_EVENT = {
   DOWNLOAD_PROGRESS_CHANGED: "DOWNLOAD_PROGRESS_CHANGED",
   INSTALL_UPDATE: "INSTALL_UPDATE",
   SHOW_SHEET_SPLITTER: "SHOW_SHEET_SPLITTER",
-  HIDE_SHEET_SPLITTER: "HIDE_SHEET_SPLITTER"
+  HIDE_SHEET_SPLITTER: "HIDE_SHEET_SPLITTER",
+  IMAGES_IMPORTED: "IMAGES_IMPORTED"
 };
 
 // CONCATENATED MODULE: ./src/client/packers/Packer.js
@@ -34822,15 +34823,16 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
     _this.onFilesDrop = _this.onFilesDrop.bind(ImagesList_assertThisInitialized(_this));
     _this.handleImageItemSelected = _this.handleImageItemSelected.bind(ImagesList_assertThisInitialized(_this));
     _this.handleImageClearSelection = _this.handleImageClearSelection.bind(ImagesList_assertThisInitialized(_this));
+    _this.imagesImported = _this.imagesImported.bind(ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.IMAGE_ITEM_SELECTED, _this.handleImageItemSelected, ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.IMAGE_CLEAR_SELECTION, _this.handleImageClearSelection, ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.FS_CHANGES, _this.handleFsChanges, ImagesList_assertThisInitialized(_this));
+    Observer.on(GLOBAL_EVENT.IMAGES_IMPORTED, _this.imagesImported, ImagesList_assertThisInitialized(_this));
     _this.handleKeys = _this.handleKeys.bind(ImagesList_assertThisInitialized(_this));
     window.addEventListener("keydown", _this.handleKeys, false);
     _this.state = {
       images: {}
     };
-    props.hookImport(_this.loadImagesComplete);
     return _this;
   }
 
@@ -35038,6 +35040,13 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
         });
         Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
       }
+    }
+  }, {
+    key: "imagesImported",
+    value: function imagesImported(images) {
+      this.setState({
+        images: {}
+      }, this.loadImagesComplete.bind(this, images));
     }
   }, {
     key: "sortImages",
@@ -39352,15 +39361,15 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
     key: "doImport",
     value: function doImport() {
       var files = this.splitIntoFiles();
-      var loaded = {};
+      var images = {};
       files.forEach(function (aFile) {
         var img = new Image();
         var base64Image = 'data:image/' + aFile.ext + ';base64,' + aFile.base64;
         img.src = base64Image;
         img._base64 = base64Image;
-        loaded[aFile.name] = img;
+        images[aFile.name] = img;
       });
-      this.props.importHook(loaded);
+      Observer.emit(GLOBAL_EVENT.IMAGES_IMPORTED, images);
     }
   }, {
     key: "doSplit",
@@ -39799,11 +39808,9 @@ var MainLayout_MainLayout = /*#__PURE__*/function (_React$Component) {
       about: false,
       editCustomExporter: false,
       updater: false,
-      sheetSplitter: false,
-      importHook: null
+      sheetSplitter: false
     };
     _this.closeMessage = _this.closeMessage.bind(MainLayout_assertThisInitialized(_this));
-    _this.hookImport = _this.hookImport.bind(MainLayout_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.SHOW_MESSAGE, _this.showMessage, MainLayout_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.SHOW_SHADER, _this.showShader, MainLayout_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.HIDE_SHADER, _this.hideShader, MainLayout_assertThisInitialized(_this));
@@ -39910,13 +39917,6 @@ var MainLayout_MainLayout = /*#__PURE__*/function (_React$Component) {
       });
     }
   }, {
-    key: "hookImport",
-    value: function hookImport(fn) {
-      this.setState({
-        importHook: fn
-      });
-    }
-  }, {
     key: "render",
     value: function render() {
       var shader = this.state.shader ? /*#__PURE__*/react_default.a.createElement(ui_ProcessingShader, null) : null;
@@ -39925,16 +39925,12 @@ var MainLayout_MainLayout = /*#__PURE__*/function (_React$Component) {
       var updater = this.state.updater ? /*#__PURE__*/react_default.a.createElement(ui_Updater, {
         data: this.state.updater
       }) : null;
-      var sheetSplitter = this.state.sheetSplitter ? /*#__PURE__*/react_default.a.createElement(ui_SheetSplitter, {
-        importHook: this.state.importHook
-      }) : null;
+      var sheetSplitter = this.state.sheetSplitter ? /*#__PURE__*/react_default.a.createElement(ui_SheetSplitter, null) : null;
       return /*#__PURE__*/react_default.a.createElement("div", {
         className: "main-wrapper"
       }, /*#__PURE__*/react_default.a.createElement(ui_MainHeader, null), /*#__PURE__*/react_default.a.createElement("div", {
         className: "main-layout border-color-gray"
-      }, /*#__PURE__*/react_default.a.createElement(ui_ImagesList, {
-        hookImport: this.hookImport
-      }), /*#__PURE__*/react_default.a.createElement(ui_PackProperties, null), /*#__PURE__*/react_default.a.createElement(ui_PackResults, null), /*#__PURE__*/react_default.a.createElement(ui_OldBrowserBlocker, null), about, editCustomExporter, sheetSplitter, updater, shader, this.state.messageBox));
+      }, /*#__PURE__*/react_default.a.createElement(ui_ImagesList, null), /*#__PURE__*/react_default.a.createElement(ui_PackProperties, null), /*#__PURE__*/react_default.a.createElement(ui_PackResults, null), /*#__PURE__*/react_default.a.createElement(ui_OldBrowserBlocker, null), about, editCustomExporter, sheetSplitter, updater, shader, this.state.messageBox));
     }
   }]);
 
