@@ -139,3 +139,4 @@ SELECT_DATA_FILE;Data file
 SPLITTER;Split / Import sheet
 SPLITTER_ERROR_NO_FRAMES;Sprites not found. Probably, atlas format is incorrect.
 HOLD_TRIM;Hold trim:
+EDIT_IMAGE_FRAME_NAME;Edit frame name:

@@ -34824,6 +34824,11 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
     _this.handleImageItemSelected = _this.handleImageItemSelected.bind(ImagesList_assertThisInitialized(_this));
     _this.handleImageClearSelection = _this.handleImageClearSelection.bind(ImagesList_assertThisInitialized(_this));
     _this.imagesImported = _this.imagesImported.bind(ImagesList_assertThisInitialized(_this));
+    _this.handleImageNameChange = _this.handleImageNameChange.bind(ImagesList_assertThisInitialized(_this));
+    _this.getSelectedImageName = _this.getSelectedImageName.bind(ImagesList_assertThisInitialized(_this));
+    _this.getExtension = _this.getExtension.bind(ImagesList_assertThisInitialized(_this));
+    _this.getImageName = _this.getImageName.bind(ImagesList_assertThisInitialized(_this));
+    _this.renderImageNameEditSection = _this.renderImageNameEditSection.bind(ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.IMAGE_ITEM_SELECTED, _this.handleImageItemSelected, ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.IMAGE_CLEAR_SELECTION, _this.handleImageClearSelection, ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.FS_CHANGES, _this.handleFsChanges, ImagesList_assertThisInitialized(_this));
@@ -34831,7 +34836,8 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
     _this.handleKeys = _this.handleKeys.bind(ImagesList_assertThisInitialized(_this));
     window.addEventListener("keydown", _this.handleKeys, false);
     _this.state = {
-      images: {}
+      images: {},
+      editedImageName: null
     };
     return _this;
   }
@@ -35027,14 +35033,14 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
           for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
             var name = _step2.value;
             images[name] = data[name];
-          } // images = this.sortImages(images);
-
+          }
         } catch (err) {
           _iterator2.e(err);
         } finally {
           _iterator2.f();
         }
 
+        images = this.sortImages(images);
         this.setState({
           images: images
         });
@@ -35273,6 +35279,9 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
         if (images[key].selected) selected.push(key);
       }
 
+      this.setState({
+        editedImageName: selected.length === 0 || selected.length > 1 ? null : this.getImageName(selected[0])
+      });
       Observer.emit(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, selected);
     }
   }, {
@@ -35367,7 +35376,7 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
       }
 
       if (deletedCount > 0) {
-        // images = this.sortImages(images);
+        images = this.sortImages(images);
         this.setState({
           images: images
         });
@@ -35410,6 +35419,66 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
       }, utils_I18.f("ADD_FOLDER")));
     }
   }, {
+    key: "handleImageNameChange",
+    value: function handleImageNameChange(event) {
+      var oldName = this.getSelectedImageName(true);
+      var newName = event.target.value;
+      this.setState({
+        editedImageName: newName
+      });
+
+      if (newName === '') {
+        return;
+      }
+
+      newName += '.' + this.getExtension(oldName);
+      var image = this.state.images[oldName];
+      var images = this.state.images;
+      delete images[oldName];
+      images[newName] = image;
+      this.setState({
+        images: images
+      });
+      Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
+      this.emitSelectedChanges();
+    }
+  }, {
+    key: "getSelectedImageName",
+    value: function getSelectedImageName() {
+      var _this6 = this;
+
+      var selected = Object.keys(this.state.images).find(function (name) {
+        return !!_this6.state.images[name].selected;
+      });
+      return selected === undefined ? null : selected;
+    }
+  }, {
+    key: "getImageName",
+    value: function getImageName(path) {
+      var parts = path.split('.');
+      parts.pop();
+      return parts.join('.');
+    }
+  }, {
+    key: "getExtension",
+    value: function getExtension(name) {
+      var ext = name.split('.').pop().toLowerCase();
+      return ext ? ext : 'png';
+    }
+  }, {
+    key: "renderImageNameEditSection",
+    value: function renderImageNameEditSection() {
+      if (this.state.editedImageName === null) {
+        return null;
+      } else {
+        return /*#__PURE__*/react_default.a.createElement("span", null, /*#__PURE__*/react_default.a.createElement("span", null, utils_I18.f("EDIT_IMAGE_FRAME_NAME")), /*#__PURE__*/react_default.a.createElement("br", null), /*#__PURE__*/react_default.a.createElement("input", {
+          type: "text",
+          value: this.state.editedImageName,
+          onChange: this.handleImageNameChange
+        }));
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
       var data = this.getImagesTree(this.state.images);
@@ -35434,7 +35503,10 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
         className: "images-tree"
       }, /*#__PURE__*/react_default.a.createElement(ui_ImagesTree, {
         data: data
-      }), dropHelp));
+      }), dropHelp), /*#__PURE__*/react_default.a.createElement("div", {
+        ref: "imageNameEditor",
+        className: "image-name-editor"
+      }, this.renderImageNameEditSection()));
     }
   }], [{
     key: "i",

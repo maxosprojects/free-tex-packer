@@ -32,6 +32,11 @@ class ImagesList extends React.Component {
         this.handleImageItemSelected = this.handleImageItemSelected.bind(this);
         this.handleImageClearSelection = this.handleImageClearSelection.bind(this);
         this.imagesImported = this.imagesImported.bind(this);
+        this.handleImageNameChange = this.handleImageNameChange.bind(this);
+        this.getSelectedImageName = this.getSelectedImageName.bind(this);
+        this.getExtension = this.getExtension.bind(this);
+        this.getImageName = this.getImageName.bind(this);
+        this.renderImageNameEditSection = this.renderImageNameEditSection.bind(this);
         
         Observer.on(GLOBAL_EVENT.IMAGE_ITEM_SELECTED, this.handleImageItemSelected, this);
         Observer.on(GLOBAL_EVENT.IMAGE_CLEAR_SELECTION, this.handleImageClearSelection, this);
@@ -42,7 +47,10 @@ class ImagesList extends React.Component {
 		
 		window.addEventListener("keydown", this.handleKeys, false);
 
-        this.state = {images: {}};
+        this.state = {
+            images: {},
+            editedImageName: null
+        };
     }
     
     static get i() {
@@ -192,7 +200,7 @@ class ImagesList extends React.Component {
                 images[name] = data[name];
             }
 
-            // images = this.sortImages(images);
+            images = this.sortImages(images);
 
             this.setState({images: images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
@@ -400,6 +408,10 @@ class ImagesList extends React.Component {
         for(let key in images) {
             if(images[key].selected) selected.push(key);
         }
+
+        this.setState({
+            editedImageName: selected.length === 0 || selected.length > 1 ? null : this.getImageName(selected[0])
+        });
         
         Observer.emit(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, selected);
     }
@@ -482,7 +494,7 @@ class ImagesList extends React.Component {
         }
         
         if(deletedCount > 0) {
-            // images = this.sortImages(images);
+            images = this.sortImages(images);
 
             this.setState({images: images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
@@ -518,6 +530,55 @@ class ImagesList extends React.Component {
             </span>
         );
     }
+
+    handleImageNameChange(event) {
+        let oldName = this.getSelectedImageName(true);
+        let newName = event.target.value;
+        this.setState({editedImageName: newName});
+        if (newName === '') {
+            return;
+        }
+        newName += '.' + this.getExtension(oldName);
+        let image = this.state.images[oldName];
+        let images = this.state.images;
+        delete images[oldName];
+        images[newName] = image;
+        this.setState({
+            images
+        });
+        Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
+        this.emitSelectedChanges();
+    }
+
+    getSelectedImageName() {
+        let selected = Object.keys(this.state.images).find(name => !!this.state.images[name].selected);
+        return selected === undefined ? null : selected;
+    }
+
+    getImageName(path) {
+        let parts = path.split('.');
+        parts.pop();
+        return parts.join('.');
+    }
+
+    getExtension(name) {
+        let ext = name.split('.').pop().toLowerCase();
+        return ext ? ext : 'png';
+    }
+
+    renderImageNameEditSection() {
+        if (this.state.editedImageName === null) {
+            return null;
+        } else {
+            return (
+                <span>
+                    <span>{I18.f("EDIT_IMAGE_FRAME_NAME")}</span>
+                    <br/>
+                    <input type="text" value={this.state.editedImageName} onChange={this.handleImageNameChange}/>
+                </span>
+            );
+        }
+    }
     
     render() {
         let data = this.getImagesTree(this.state.images);
@@ -548,7 +609,11 @@ class ImagesList extends React.Component {
                     <ImagesTree data={data} />
                     {dropHelp}
                 </div>
-                
+
+                <div ref="imageNameEditor" className="image-name-editor">
+                    {this.renderImageNameEditSection()}
+                </div>
+
             </div>
         );
     }
