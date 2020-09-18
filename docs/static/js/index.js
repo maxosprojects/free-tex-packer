@@ -37037,7 +37037,7 @@ var PackResults_PackResults = /*#__PURE__*/function (_React$Component) {
         ref: this.rangeRef,
         type: "range",
         min: "0.1",
-        max: "2",
+        max: "5",
         step: this.step,
         defaultValue: "1",
         onChange: this.changeScale

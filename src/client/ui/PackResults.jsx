@@ -147,7 +147,7 @@ class PackResults extends React.Component {
                                         {I18.f("SCALE")}
                                     </td>
                                     <td>
-                                        <input ref={this.rangeRef} type="range" min="0.1" max="2" step={this.step} defaultValue="1" onChange={this.changeScale}/>
+                                        <input ref={this.rangeRef} type="range" min="0.1" max="5" step={this.step} defaultValue="1" onChange={this.changeScale}/>
                                     </td>
                                     <td>
                                         <div className="btn back-800 border-color-gray color-white" onClick={this.toggleSpritesPlayer}>{I18.f("SHOW_SPRITES")}</div>
