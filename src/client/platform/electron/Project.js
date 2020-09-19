@@ -102,21 +102,12 @@ class Project {
     }
     
     static save() {
-        if(!CURRENT_PROJECT_PATH) {
-            Project.saveAs();
-            return;
-        }
-        
-        let path = FileSystem.saveProject(Project.getData(), CURRENT_PROJECT_PATH);
-        if(path) {
-            CURRENT_PROJECT_PATH = path;
-            Project.setProjectChanged(false);
-            Project.updateRecentProjects(path);
-        }
+        Project.saveAs(CURRENT_PROJECT_PATH);
     }
     
-    static saveAs() {
-        let path = FileSystem.saveProject(Project.getData());
+    static saveAs(currProjPath) {
+
+        let path = FileSystem.saveProject(Project.getData(), currProjPath);
         if(path) {
             CURRENT_PROJECT_PATH = path;
             Project.setProjectChanged(false);
