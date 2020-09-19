@@ -72,7 +72,7 @@ class PackResults extends React.Component {
                 this.setState({scale: value});
             }            
         } else {            
-            if (this.state.scale < 2.0) {
+            if (this.state.scale < 5.0) {
                 value = Number((this.state.scale + this.step).toPrecision(2));
                 this.setState({scale: value});
             }

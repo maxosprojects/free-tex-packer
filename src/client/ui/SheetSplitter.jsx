@@ -63,7 +63,7 @@ class SheetSplitter extends React.Component {
                 this.updateTextureScale(value);
             }
         } else {
-            if (this.state.scale < 2.0) {
+            if (this.state.scale < 5.0) {
                 value = Number((this.state.scale + this.step).toPrecision(2));
                 this.setState({scale: value});
                 this.updateTextureScale(value);
@@ -435,7 +435,7 @@ class SheetSplitter extends React.Component {
                                         {I18.f("SCALE")}
                                     </td>
                                     <td>
-                                        <input ref={this.rangeRef} type="range" min="0.1" max="1" step={this.step} defaultValue="1" onChange={this.changeScale}/>
+                                        <input ref={this.rangeRef} type="range" min="0.1" max="5" step={this.step} defaultValue="1" onChange={this.changeScale}/>
                                     </td>
                                 </tr>
                             </tbody>
