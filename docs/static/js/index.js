@@ -34829,10 +34829,14 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
     _this.getExtension = _this.getExtension.bind(ImagesList_assertThisInitialized(_this));
     _this.getImageName = _this.getImageName.bind(ImagesList_assertThisInitialized(_this));
     _this.renderImageNameEditSection = _this.renderImageNameEditSection.bind(ImagesList_assertThisInitialized(_this));
+    _this.onSelectionChanged = _this.onSelectionChanged.bind(ImagesList_assertThisInitialized(_this));
+    _this.onListChanged = _this.onListChanged.bind(ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.IMAGE_ITEM_SELECTED, _this.handleImageItemSelected, ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.IMAGE_CLEAR_SELECTION, _this.handleImageClearSelection, ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.FS_CHANGES, _this.handleFsChanges, ImagesList_assertThisInitialized(_this));
     Observer.on(GLOBAL_EVENT.IMAGES_IMPORTED, _this.imagesImported, ImagesList_assertThisInitialized(_this));
+    Observer.on(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, _this.onSelectionChanged, ImagesList_assertThisInitialized(_this));
+    Observer.on(GLOBAL_EVENT.IMAGES_LIST_CHANGED, _this.onListChanged, ImagesList_assertThisInitialized(_this));
     _this.handleKeys = _this.handleKeys.bind(ImagesList_assertThisInitialized(_this));
     window.addEventListener("keydown", _this.handleKeys, false);
     _this.state = {
@@ -34848,7 +34852,24 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
       Observer.off(GLOBAL_EVENT.IMAGE_ITEM_SELECTED, this.handleImageItemSelected, this);
       Observer.off(GLOBAL_EVENT.IMAGE_CLEAR_SELECTION, this.handleImageClearSelection, this);
       Observer.off(GLOBAL_EVENT.FS_CHANGES, this.handleFsChanges, this);
+      Observer.off(GLOBAL_EVENT.IMAGES_IMPORTED, this.imagesImported, this);
+      Observer.off(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, this.onSelectionChanged, this);
+      Observer.off(GLOBAL_EVENT.IMAGES_LIST_CHANGED, this.onListChanged, this);
       window.removeEventListener("keydown", this.handleKeys, false);
+    }
+  }, {
+    key: "onSelectionChanged",
+    value: function onSelectionChanged(selected) {
+      this.setState({
+        editedImageName: selected.length === 0 || selected.length > 1 ? null : this.getImageName(selected[0])
+      });
+    }
+  }, {
+    key: "onListChanged",
+    value: function onListChanged(images) {
+      this.setState({
+        editedImageName: this.getSelectedImageName(images)
+      });
     }
   }, {
     key: "handleKeys",
@@ -35279,9 +35300,6 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
         if (images[key].selected) selected.push(key);
       }
 
-      this.setState({
-        editedImageName: selected.length === 0 || selected.length > 1 ? null : this.getImageName(selected[0])
-      });
       Observer.emit(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, selected);
     }
   }, {
@@ -35421,7 +35439,7 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "handleImageNameChange",
     value: function handleImageNameChange(event) {
-      var oldName = this.getSelectedImageName(true);
+      var oldName = this.getSelectedImageName();
       var newName = event.target.value;
       this.setState({
         editedImageName: newName
@@ -35445,12 +35463,16 @@ var ImagesList_ImagesList = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "getSelectedImageName",
     value: function getSelectedImageName() {
-      var _this6 = this;
-
-      var selected = Object.keys(this.state.images).find(function (name) {
-        return !!_this6.state.images[name].selected;
+      var images = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.state.images;
+      var selected = Object.keys(images).filter(function (name) {
+        return !!images[name].selected;
       });
-      return selected === undefined ? null : selected;
+
+      if (selected.length === 0 || selected.length > 1) {
+        return null;
+      }
+
+      return selected[0];
     }
   }, {
     key: "getImageName",
@@ -36936,7 +36958,7 @@ var PackResults_PackResults = /*#__PURE__*/function (_React$Component) {
           });
         }
       } else {
-        if (this.state.scale < 2.0) {
+        if (this.state.scale < 5.0) {
           value = Number((this.state.scale + this.step).toPrecision(2));
           this.setState({
             scale: value
@@ -39414,7 +39436,7 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
           this.updateTextureScale(value);
         }
       } else {
-        if (this.state.scale < 2.0) {
+        if (this.state.scale < 5.0) {
           value = Number((this.state.scale + this.step).toPrecision(2));
           this.setState({
             scale: value
@@ -39805,7 +39827,7 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
         ref: this.rangeRef,
         type: "range",
         min: "0.1",
-        max: "1",
+        max: "5",
         step: this.step,
         defaultValue: "1",
         onChange: this.changeScale

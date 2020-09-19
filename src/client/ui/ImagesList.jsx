@@ -37,11 +37,15 @@ class ImagesList extends React.Component {
         this.getExtension = this.getExtension.bind(this);
         this.getImageName = this.getImageName.bind(this);
         this.renderImageNameEditSection = this.renderImageNameEditSection.bind(this);
+        this.onSelectionChanged = this.onSelectionChanged.bind(this);
+        this.onListChanged = this.onListChanged.bind(this);
         
         Observer.on(GLOBAL_EVENT.IMAGE_ITEM_SELECTED, this.handleImageItemSelected, this);
         Observer.on(GLOBAL_EVENT.IMAGE_CLEAR_SELECTION, this.handleImageClearSelection, this);
         Observer.on(GLOBAL_EVENT.FS_CHANGES, this.handleFsChanges, this);
         Observer.on(GLOBAL_EVENT.IMAGES_IMPORTED, this.imagesImported, this);
+        Observer.on(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, this.onSelectionChanged, this);
+        Observer.on(GLOBAL_EVENT.IMAGES_LIST_CHANGED, this.onListChanged, this);
 		
 		this.handleKeys = this.handleKeys.bind(this);
 		
@@ -61,10 +65,25 @@ class ImagesList extends React.Component {
         Observer.off(GLOBAL_EVENT.IMAGE_ITEM_SELECTED, this.handleImageItemSelected, this);
         Observer.off(GLOBAL_EVENT.IMAGE_CLEAR_SELECTION, this.handleImageClearSelection, this);
         Observer.off(GLOBAL_EVENT.FS_CHANGES, this.handleFsChanges, this);
+        Observer.off(GLOBAL_EVENT.IMAGES_IMPORTED, this.imagesImported, this);
+        Observer.off(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, this.onSelectionChanged, this);
+        Observer.off(GLOBAL_EVENT.IMAGES_LIST_CHANGED, this.onListChanged, this);
 		
 		window.removeEventListener("keydown", this.handleKeys, false);
     }
-	
+
+    onSelectionChanged(selected) {
+        this.setState({
+            editedImageName: selected.length === 0 || selected.length > 1 ? null : this.getImageName(selected[0])
+        });
+    }
+
+    onListChanged(images) {
+        this.setState({
+            editedImageName: this.getSelectedImageName(images)
+        });
+    }
+
 	handleKeys(e) {
 		if(e) {
             let key = e.keyCode || e.which;
@@ -409,10 +428,6 @@ class ImagesList extends React.Component {
             if(images[key].selected) selected.push(key);
         }
 
-        this.setState({
-            editedImageName: selected.length === 0 || selected.length > 1 ? null : this.getImageName(selected[0])
-        });
-        
         Observer.emit(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, selected);
     }
     
@@ -532,7 +547,7 @@ class ImagesList extends React.Component {
     }
 
     handleImageNameChange(event) {
-        let oldName = this.getSelectedImageName(true);
+        let oldName = this.getSelectedImageName();
         let newName = event.target.value;
         this.setState({editedImageName: newName});
         if (newName === '') {
@@ -550,9 +565,12 @@ class ImagesList extends React.Component {
         this.emitSelectedChanges();
     }
 
-    getSelectedImageName() {
-        let selected = Object.keys(this.state.images).find(name => !!this.state.images[name].selected);
-        return selected === undefined ? null : selected;
+    getSelectedImageName(images = this.state.images) {
+        let selected = Object.keys(images).filter(name => !!images[name].selected);
+        if (selected.length === 0 || selected.length > 1) {
+            return null;
+        }
+        return selected[0];
     }
 
     getImageName(path) {
