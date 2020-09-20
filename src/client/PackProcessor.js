@@ -66,7 +66,7 @@ class PackProcessor {
         return rects;
     }
     
-    static pack(images={}, options={}, onComplete=null, onError=null) {
+    static pack(images=[], options={}, onComplete=null, onError=null) {
 
         let rects = [];
 
@@ -79,13 +79,7 @@ class PackProcessor {
         let alphaThreshold = options.alphaThreshold || 0;
         if(alphaThreshold > 255) alphaThreshold = 255;
 
-        let names = Object.keys(images).sort();
-        
-        for(let key of names) {
-            let img = images[key];
-
-            let name = key.split(".")[0];
-
+        for(let img of images) {
             maxWidth += img.width;
             maxHeight += img.height;
 
@@ -98,8 +92,8 @@ class PackProcessor {
                 trimmed: false,
                 spriteSourceSize: {x: 0, y: 0, w: img.width, h: img.height},
                 sourceSize: {w: img.width, h: img.height},
-                name: name,
-                file: key,
+                name: img.name,
+                file: img.name,
                 image: img
             });
         }

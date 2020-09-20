@@ -14,7 +14,7 @@ class APP {
     constructor() {
         INSTANCE = this;
         
-        this.images = {};
+        this.images = [];
         this.packOptions = {};
         this.packResult = null;
         
@@ -46,9 +46,7 @@ class APP {
     }
     
     pack() {
-        let keys = Object.keys(this.images);
-        
-        if(keys.length > 0) {
+        if(this.images.length > 0) {
             Observer.emit(GLOBAL_EVENT.SHOW_SHADER);
             setTimeout(() => this.doPack(), 0);
         }

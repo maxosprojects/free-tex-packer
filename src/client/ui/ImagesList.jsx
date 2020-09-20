@@ -10,7 +10,7 @@ import ImagesTree from './ImagesTree.jsx';
 
 import FileSystem from 'platform/FileSystem';
 
-import {smartSortImages, addImagesToList, findImageByName} from '../utils/common';
+import {smartSortImages, addImagesToList, findImageByName, findIndexByImgName} from '../utils/common';
 
 let INSTANCE = null;
 
@@ -252,7 +252,7 @@ class ImagesList extends React.Component {
     }
     
     doClear() {
-        Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, {});
+        Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, []);
         Observer.emit(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, []);
         this.setState({images: []});
     }
@@ -480,22 +480,22 @@ class ImagesList extends React.Component {
     }
 
     deleteSelectedImages() {
-        let images = this.state.images;
+        let images = this.state.images.slice();
         
         let deletedCount = 0;
         
-        let keys = Object.keys(images);
-        for(let key of keys) {
-            if(images[key].selected) {
+        for(let img of this.state.images) {
+            if(img.selected) {
                 deletedCount++;
-                delete images[key];
+                let index = findIndexByImgName(images, img.name);
+                images.splice(index, 1);
             }
         }
         
         if(deletedCount > 0) {
-            images = this.sortImages(images);
+            // images = this.sortImages(images);
 
-            this.setState({images: images});
+            this.setState({images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
         }
     }
