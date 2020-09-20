@@ -1,6 +1,8 @@
+import {addImageToList} from './common.js';
+
 class Base64ImagesLoader {
     constructor() {
-        this.loaded = {};
+        this.loaded = [];
 
         this.onProgress = null;
         this.onEnd = null;
@@ -19,8 +21,9 @@ class Base64ImagesLoader {
             img.src = item.url;
             img._base64 = item.url;
             img.fsPath = item.fsPath;
+            img.name = item.name;
 
-            this.loaded[item.name] = img;
+            addImageToList(this.loaded, img);
         }
         
         this.waitImages();
@@ -29,10 +32,9 @@ class Base64ImagesLoader {
     waitImages() {
         let ready = true;
         let loaded = 0;
-        let keys = Object.keys(this.loaded);
         
-        for(let key of keys) {
-            if(!this.loaded[key].complete) {
+        for(let img of this.loaded) {
+            if(!img.complete) {
                 ready = false;
             }
             else {
@@ -44,7 +46,7 @@ class Base64ImagesLoader {
             if(this.onEnd) this.onEnd(this.loaded);
         }
         else {
-            if(this.onProgress) this.onProgress(loaded / keys.length);
+            if(this.onProgress) this.onProgress(loaded / this.loaded.length);
             setTimeout(this.waitImages, 50);
         }
     }

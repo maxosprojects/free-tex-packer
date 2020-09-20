@@ -28,6 +28,34 @@ function smartSortImages(f1, f2) {
     return f1 > f2 ? 1 : -1;
 }
 
+function findIndexByImgName(imageList, name) {
+    return imageList.findIndex(img => img.name === name);
+}
+
+function findImageByName(imageList, name) {
+    let index = findIndexByImgName(imageList, name);
+    return index > -1 ? imageList[index] : null;
+}
+
+function addImageToList(imageList, img) {
+    let index = findIndexByImgName(imageList, img.name);
+    if (index > -1) {
+        imageList[index] = img;
+    } else {
+        imageList.push(img);
+    }
+}
+
+function addImagesToList(imageList, anotherListOfImages) {
+    for (let img of anotherListOfImages) {
+        addImageToList(imageList, img);
+    }
+}
+
 module.exports = {
-    smartSortImages: smartSortImages
+    smartSortImages,
+    findIndexByImgName,
+    findImageByName,
+    addImageToList,
+    addImagesToList
 };

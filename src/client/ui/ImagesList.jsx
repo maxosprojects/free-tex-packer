@@ -10,7 +10,7 @@ import ImagesTree from './ImagesTree.jsx';
 
 import FileSystem from 'platform/FileSystem';
 
-import {smartSortImages} from '../utils/common';
+import {smartSortImages, addImagesToList, findImageByName} from '../utils/common';
 
 let INSTANCE = null;
 
@@ -34,8 +34,7 @@ class ImagesList extends React.Component {
         this.imagesImported = this.imagesImported.bind(this);
         this.handleImageNameChange = this.handleImageNameChange.bind(this);
         this.getSelectedImageName = this.getSelectedImageName.bind(this);
-        this.getExtension = this.getExtension.bind(this);
-        this.getImageName = this.getImageName.bind(this);
+        this.getSelectedImage = this.getSelectedImage.bind(this);
         this.renderImageNameEditSection = this.renderImageNameEditSection.bind(this);
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.onListChanged = this.onListChanged.bind(this);
@@ -52,7 +51,7 @@ class ImagesList extends React.Component {
 		window.addEventListener("keydown", this.handleKeys, false);
 
         this.state = {
-            images: {},
+            images: [],
             editedImageName: null
         };
     }
@@ -74,7 +73,7 @@ class ImagesList extends React.Component {
 
     onSelectionChanged(selected) {
         this.setState({
-            editedImageName: selected.length === 0 || selected.length > 1 ? null : this.getImageName(selected[0])
+            editedImageName: selected.length === 0 || selected.length > 1 ? null : selected[0]
         });
     }
 
@@ -201,7 +200,7 @@ class ImagesList extends React.Component {
         }
     }
     
-    loadImagesComplete(data=[]) {
+    loadImagesComplete(list=[]) {
 
         Observer.emit(GLOBAL_EVENT.HIDE_SHADER);
         
@@ -210,16 +209,12 @@ class ImagesList extends React.Component {
             ReactDOM.findDOMNode(this.refs.addZipInput).value = "";
         }
         
-        let names = Object.keys(data);
-        
-        if(names.length) {
+        if(list.length) {
             let images = this.state.images;
             
-            for (let name of names) {
-                images[name] = data[name];
-            }
+            addImagesToList(images, list);
 
-            images = this.sortImages(images);
+            // images = this.sortImages(images);
 
             this.setState({images: images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
@@ -246,8 +241,7 @@ class ImagesList extends React.Component {
     }
 
     clear() {
-        let keys = Object.keys(this.state.images);
-        if(keys.length) {
+        if(this.state.images.length) {
             let buttons = {
                 "yes": {caption: I18.f("YES"), callback: this.doClear},
                 "no": {caption: I18.f("NO")}
@@ -260,13 +254,13 @@ class ImagesList extends React.Component {
     doClear() {
         Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, {});
         Observer.emit(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, []);
-        this.setState({images: {}});
+        this.setState({images: []});
     }
 
     selectAllImages() {
         let images = this.state.images;
-        for(let key in images) {
-            images[key].selected = true;
+        for(let img of images) {
+            img.selected = true;
         }
 
         this.setState({images: this.state.images});
@@ -275,30 +269,22 @@ class ImagesList extends React.Component {
     
     removeImagesSelect() {
         let images = this.state.images;
-        for(let key in images) {
-            images[key].selected = false;
+        for(let img of images) {
+            img.selected = false;
         }
     }
     
     getCurrentImage() {
         let images = this.state.images;
-        for(let key in images) {
-            if(images[key].current) return images[key];
+        for(let img of images) {
+            if(img.current) return img;
         }
         
         return null;
     }
     
     getImageIx(image) {
-        let ix = 0;
-        
-        let images = this.state.images;
-        for(let key in images) {
-            if(images[key] === image) return ix;
-            ix++;
-        }
-        
-        return -1;
+        return this.state.images.indexOf(image);
     }
     
     bulkSelectImages(to) {
@@ -313,9 +299,9 @@ class ImagesList extends React.Component {
 
         let images = this.state.images;
         let ix = 0;
-        for(let key in images) {
-            if(fromIx < toIx && ix >= fromIx && ix <= toIx) images[key].selected = true;
-            if(fromIx > toIx && ix <= fromIx && ix >= toIx) images[key].selected = true;
+        for(let img of images) {
+            if(fromIx < toIx && ix >= fromIx && ix <= toIx) img.selected = true;
+            if(fromIx > toIx && ix <= fromIx && ix >= toIx) img.selected = true;
             ix++;
         }
     }
@@ -324,30 +310,30 @@ class ImagesList extends React.Component {
         let images = this.state.images;
         
         let first = false;
-        for(let key in images) {
-            if(key.substr(0, path.length + 1) === path + "/") {
+        for(let img of images) {
+            if(img.name.substr(0, path.length + 1) === path + "/") {
                 if(!first) {
                     first = true;
                     this.clearCurrentImage();
-                    images[key].current = true;
+                    img.current = true;
                 }
-                images[key].selected = selected;
+                img.selected = selected;
             }
         }
     }
     
     clearCurrentImage() {
         let images = this.state.images;
-        for(let key in images) {
-            images[key].current = false;
+        for(let img of images) {
+            img.current = false;
         }
     }
     
     getFirstImageInFolder(path) {
         let images = this.state.images;
 
-        for(let key in images) {
-            if (key.substr(0, path.length + 1) === path + "/") return images[key];
+        for(let img of images) {
+            if (img.name.substr(0, path.length + 1) === path + "/") return img;
         }
         
         return null;
@@ -357,8 +343,8 @@ class ImagesList extends React.Component {
         let images = this.state.images;
         
         let ret = null;
-        for(let key in images) {
-            if (key.substr(0, path.length + 1) === path + "/") ret = images[key];
+        for(let img of images) {
+            if (img.name.substr(0, path.length + 1) === path + "/") ret = images[key];
         }
 
         return ret;
@@ -389,7 +375,7 @@ class ImagesList extends React.Component {
             }
         }
         else {
-            let image = images[path];
+            let image = findImageByName(images, path);
             if(image) {
                 if(e.ctrlKey) {
                     image.selected = !image.selected;
@@ -424,8 +410,8 @@ class ImagesList extends React.Component {
 
         let images = this.state.images;
         
-        for(let key in images) {
-            if(images[key].selected) selected.push(key);
+        for(let img of images) {
+            if(img.selected) selected.push(img.name);
         }
 
         Observer.emit(GLOBAL_EVENT.IMAGES_LIST_SELECTED_CHANGED, selected);
@@ -476,20 +462,18 @@ class ImagesList extends React.Component {
     getImagesTree() {
         let res = this.createImagesFolder();
 
-        let keys = Object.keys(this.state.images);
-
-        for(let key of keys) {
-            let parts = key.split("/");
+        for(let img of this.state.images) {
+            let parts = img.name.split("/");
             let name = parts.pop();
             let folder = this.getImageSubFolder(res, parts);
 
             folder.items.push({
-                img: this.state.images[key],
-                path: key,
-                name: name
+                img,
+                path: img.name,
+                name
             });
             
-            if(this.state.images[key].selected) folder.selected = true;
+            if(img.selected) folder.selected = true;
         }
 
         return res;
@@ -547,61 +531,51 @@ class ImagesList extends React.Component {
     }
 
     handleImageNameChange(event) {
-        let oldName = this.getSelectedImageName();
         let newName = event.target.value;
         this.setState({editedImageName: newName});
         if (newName === '') {
             return;
         }
-        newName += '.' + this.getExtension(oldName);
-        let image = this.state.images[oldName];
-        let images = this.state.images;
-        delete images[oldName];
-        images[newName] = image;
+        let image = this.getSelectedImage();
+        image.name = newName;
         this.setState({
-            images
+            images: this.state.images
         });
-        Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
-        this.emitSelectedChanges();
     }
 
-    getSelectedImageName(images = this.state.images) {
-        let selected = Object.keys(images).filter(name => !!images[name].selected);
+    getSelectedImage(images = this.state.images) {
+        let selected = images.filter(img => !!img.selected);
         if (selected.length === 0 || selected.length > 1) {
             return null;
         }
         return selected[0];
     }
 
-    getImageName(path) {
-        let parts = path.split('.');
-        parts.pop();
-        return parts.join('.');
-    }
-
-    getExtension(name) {
-        let ext = name.split('.').pop().toLowerCase();
-        return ext ? ext : 'png';
+    getSelectedImageName(images = this.state.images) {
+        let selected = this.getSelectedImage(images);
+        if (selected === null) {
+            return null;
+        }
+        return selected === null ? selected.name : null;
     }
 
     renderImageNameEditSection() {
         if (this.state.editedImageName === null) {
             return null;
-        } else {
-            return (
-                <span>
-                    <span>{I18.f("EDIT_IMAGE_FRAME_NAME")}</span>
-                    <br/>
-                    <input type="text" value={this.state.editedImageName} onChange={this.handleImageNameChange}/>
-                </span>
-            );
         }
+        return (
+            <span>
+                <span>{I18.f("EDIT_IMAGE_FRAME_NAME")}</span>
+                <br/>
+                <input type="text" value={this.state.editedImageName} onChange={this.handleImageNameChange}/>
+            </span>
+        );
     }
     
     render() {
         let data = this.getImagesTree(this.state.images);
         
-        let dropHelp = Object.keys(this.state.images).length > 0 ? null : (<div ref="dropHelp" className="image-drop-help">{I18.f("IMAGE_DROP_HELP")}</div>);
+        let dropHelp = this.state.images.length > 0 ? null : (<div ref="dropHelp" className="image-drop-help">{I18.f("IMAGE_DROP_HELP")}</div>);
 
         return (
             <div className="images-list border-color-gray back-white">

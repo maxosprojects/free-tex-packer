@@ -19,6 +19,12 @@ class FileSystem {
     static getExtFromPath(path) {
         return path.split(".").pop().toLowerCase();
     }
+
+    static removeExt(filename) {
+        let parts = filename.split(".");
+        parts.pop();
+        return parts.join('.');
+    }
     
     static selectFolder() {
         let dir = dialog.showOpenDialog({
@@ -35,7 +41,7 @@ class FileSystem {
             }
             else {
                 list.push({
-                    name: (base ? base : "") + file,
+                    name: (base ? base : "") + FileSystem.removeExt(file),
                     path: dir + file
                 });
             }
@@ -57,7 +63,7 @@ class FileSystem {
                 let name = path.split("/").pop();
 
                 files.push({
-                    name: name,
+                    name: FileSystem.removeExt(name),
                     path: path,
                     folder: ""
                 });
@@ -119,7 +125,7 @@ class FileSystem {
             let ext = FileSystem.getExtFromPath(path);
             
             if(IMAGES_EXT.indexOf(ext) >= 0) {
-                if(!item.folder) FileSystem.startWatch(path);
+                // if(!item.folder) FileSystem.startWatch(path);
                 
                 try {
                     let content = fs.readFileSync(path, 'base64');
@@ -138,7 +144,7 @@ class FileSystem {
     
     static loadFolder(path, cb) {
         if(fs.existsSync(path)) {
-            FileSystem.startWatch(path);
+            // FileSystem.startWatch(path);
             
             let parts = path.split("/");
             let name = "";
@@ -146,9 +152,9 @@ class FileSystem {
 
             let list = FileSystem.getFolderFilesList(path + "/", name + "/");
 
-            for (let item of list) {
-                item.folder = path;
-            }
+            // for (let item of list) {
+            //     item.folder = path;
+            // }
 
             FileSystem.loadImages(list, cb);
         }

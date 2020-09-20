@@ -1,8 +1,10 @@
+import {addImageToList} from './common.js';
+
 class LocalImagesLoader {
 
     constructor() {
         this.data = null;
-        this.loaded = {};
+        this.loaded = [];
         this.loadedCnt = 0;
 
         this.onProgress = null;
@@ -40,8 +42,9 @@ class LocalImagesLoader {
             reader.onload = e => {
                 img.src = e.target.result;
                 img._base64 = e.target.result;
+                img.name = item.name;
 
-                this.loaded[item.name] = img;
+                addImageToList(this.loaded, img);
                 this.loadedCnt++;
 
                 if (this.onProgress) {
@@ -61,8 +64,8 @@ class LocalImagesLoader {
     waitImages() {
         let ready = true;
 
-        for(let key of Object.keys(this.loaded)) {
-            if(!this.loaded[key].complete) {
+        for(let img of this.loaded) {
+            if(!img.complete) {
                 ready = false;
                 break;
             }
