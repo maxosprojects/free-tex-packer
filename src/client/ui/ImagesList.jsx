@@ -155,44 +155,24 @@ class ImagesList extends React.Component {
     }
 
     handleFsChanges(data) {
-        let image = null;
         let images = this.state.images;
-        
-        for(let img of images) {
-            if(img.path === data.path) {
-                image = img;
-                break;
-            }
+        let imagesInvolved = images.filter(img => img.path === data.path);
+
+        if (imagesInvolved.length === 0) {
+            return;
         }
-        
-        if(data.event === "unlink" && image) {
-            let index = findIndexByImgName(images, image.name);
-            images.splice(index, 1);
+
+        if(data.event === "unlink") {
+            images = images.filter(img => img.path !== data.path);
             this.setState({images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
         }
 
-        // if(data.event === "add" || data.event === "change") {
-        //     let folder = "";
-        //     let addPath = "";
-            
-        //     for(let img of images) {
-        //         if(img.folder && data.path.substr(0, img.folder.length) === img.folder) {
-        //             folder = item.fsPath.folder;
-        //             addPath = folder.split("/").pop();
-        //         }
-        //     }
-            
-        //     let name = "";
-        //     if(folder) {
-        //         name = addPath + data.path.substr(folder.length);
-        //     }
-        //     else {
-        //         name = data.path.split("/").pop();
-        //     }
-            
-        //     FileSystem.loadImages([{name: name, path: data.path, folder: folder}], this.loadImagesComplete);
-        // }
+        if(data.event === "change") {
+            let items = imagesInvolved
+                .map(img => ({name: img.name, path: data.path}));
+            FileSystem.loadImages(items, this.loadImagesComplete);
+        }
     }
     
     loadImagesComplete(list=[]) {
@@ -339,7 +319,7 @@ class ImagesList extends React.Component {
         
         let ret = null;
         for(let img of images) {
-            if (img.name.substr(0, path.length + 1) === path + "/") ret = images[key];
+            if (img.name.substr(0, path.length + 1) === path + "/") ret = img;
         }
 
         return ret;

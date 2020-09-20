@@ -38,21 +38,13 @@ class Project {
     
     static getData() {
         let images = [];
-        let folders = [];
         
         for(let img of APP.i.images) {
             let image = {
                 name: img.name,
                 path: img.path
             };
-            let folder = image.folder;
-            
-            if(folder) {
-                if(folders.indexOf(folder) < 0) folders.push(folder);
-            }
-            else {
-                images.push(image);
-            }
+            images.push(image);
         }
         
         let packOptions = Object.assign({}, APP.i.packOptions);
@@ -67,7 +59,6 @@ class Project {
             meta: meta,
             savePath: APP.i.packOptions.savePath || '',
             images: images,
-            folders: folders,
             packOptions: packOptions
         }
     }
@@ -155,30 +146,8 @@ class Project {
 
                 FileSystem.loadImages(data.images, res => {
                     images = res;
-
-                    let cf = 0;
-
-                    let loadNextFolder = () => {
-                        if(cf >= data.folders.length) {
-                            ImagesList.i.setImages(images);
-                            Project.startObserv();
-                            return;
-                        }
-                        
-                        let path = data.folders[cf];
-                        FileSystem.startWatch(path);
-
-                        FileSystem.loadFolder(path, (res) => {
-                            let keys = Object.keys(res);
-                            for(let key of keys) {
-                                images[key] = res[key];
-                            }
-                            cf++;
-                            loadNextFolder();
-                        });
-                    };
-
-                    loadNextFolder();
+                    ImagesList.i.setImages(res);
+                    Project.startObserv();
                 });
 
                 CURRENT_PROJECT_PATH = path;

@@ -64,8 +64,7 @@ class FileSystem {
 
                 files.push({
                     name: FileSystem.removeExt(name),
-                    path: path,
-                    folder: ""
+                    path: path
                 });
             }
 
@@ -125,7 +124,7 @@ class FileSystem {
             let ext = FileSystem.getExtFromPath(path);
             
             if(IMAGES_EXT.indexOf(ext) >= 0) {
-                // if(!item.folder) FileSystem.startWatch(path);
+                FileSystem.startWatch(path);
                 
                 try {
                     let content = fs.readFileSync(path, 'base64');
@@ -148,17 +147,11 @@ class FileSystem {
     
     static loadFolder(path, cb) {
         if(fs.existsSync(path)) {
-            // FileSystem.startWatch(path);
-            
             let parts = path.split("/");
             let name = "";
             while (parts.length && !name) name = parts.pop();
 
             let list = FileSystem.getFolderFilesList(path + "/", name + "/");
-
-            // for (let item of list) {
-            //     item.folder = path;
-            // }
 
             FileSystem.loadImages(list, cb);
         }
