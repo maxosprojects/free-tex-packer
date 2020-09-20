@@ -43,7 +43,11 @@ function createWindow() {
         minWidth: w,
         minHeight: h,
         title: "",
-        icon: path.resolve(__dirname, 'www/static/images/icon.png')
+        icon: path.resolve(__dirname, 'www/static/images/icon.png'),
+        webPreferences: {
+            nodeIntegration: true,
+            enableRemoteModule: true
+        }
     });
 
     mainWindowState.manage(mainWindow);

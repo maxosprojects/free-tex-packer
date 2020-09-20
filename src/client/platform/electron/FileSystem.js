@@ -27,7 +27,7 @@ class FileSystem {
     }
     
     static selectFolder() {
-        let dir = dialog.showOpenDialog({
+        let dir = dialog.showOpenDialogSync({
             properties: ['openDirectory']
         });
         return dir;
@@ -51,7 +51,7 @@ class FileSystem {
     }
     
     static addImages(cb) {
-        let list = dialog.showOpenDialog({
+        let list = dialog.showOpenDialogSync({
             filters: [{name: I18.f("IMAGES"), extensions: IMAGES_EXT}],
             properties: ['openFile', 'multiSelections']
         });
@@ -77,7 +77,7 @@ class FileSystem {
     }
 
     static addFolder(cb) {
-        let dir = dialog.showOpenDialog({
+        let dir = dialog.showOpenDialogSync({
             properties: ['openDirectory']
         });
 
@@ -194,7 +194,7 @@ class FileSystem {
             path = FileSystem.fixPath(pathToLoad);
         }
         else {
-            path = dialog.showOpenDialog({
+            path = dialog.showOpenDialogSync({
                 filters: [{name: "Free texture packer", extensions: ['ftpp']}],
                 properties: ['openFile']
             });
