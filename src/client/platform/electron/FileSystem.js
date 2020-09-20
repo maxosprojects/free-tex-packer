@@ -130,7 +130,11 @@ class FileSystem {
                 try {
                     let content = fs.readFileSync(path, 'base64');
                     content = "data:image/" + ext + ";base64," + content;
-                    files.push({name: item.name, url: content, fsPath: item});
+                    files.push({
+                        name: item.name,
+                        url: content,
+                        path: item.path
+                    });
                 }
                 catch(e){}
             }
@@ -169,7 +173,7 @@ class FileSystem {
         };
         
         if(!path) {
-            path = dialog.showSaveDialog(options);
+            path = dialog.showSaveDialogSync(options);
         }
         
         if(path) {

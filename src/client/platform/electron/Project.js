@@ -37,12 +37,14 @@ class Project {
     }
     
     static getData() {
-        let keys = Object.keys(APP.i.images);
         let images = [];
         let folders = [];
         
-        for(let key of keys) {
-            let image = APP.i.images[key].fsPath;
+        for(let img of APP.i.images) {
+            let image = {
+                name: img.name,
+                path: img.path
+            };
             let folder = image.folder;
             
             if(folder) {
@@ -106,7 +108,7 @@ class Project {
     }
     
     static saveAs(currProjPath) {
-        let inMemoryImages = Object.keys(APP.i.images).filter(key => APP.i.images[key].fsPath === undefined);
+        let inMemoryImages = APP.i.images.filter(img => img.path === undefined);
 
         if (inMemoryImages.length > 0) {
             Observer.emit(GLOBAL_EVENT.SHOW_MESSAGE, I18.f("IN_MEMORY_IMAGES_ERROR", inMemoryImages.join(', ')));
