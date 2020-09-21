@@ -142,7 +142,6 @@ class APP {
                 textureFormat: this.packOptions.textureFormat,
                 imageWidth: buffer.width,
                 imageHeight: buffer.height,
-                removeFileExtension: this.packOptions.removeFileExtension,
                 prependFolderName: this.packOptions.prependFolderName,
                 base64Export: this.packOptions.base64Export,
                 scale: this.packOptions.scale,

@@ -71,7 +71,6 @@ class PackProperties extends React.Component {
         
         data.textureName = data.textureName || "texture";
         data.textureFormat = data.textureFormat || "png";
-        data.removeFileExtension = data.removeFileExtension === undefined ? false : data.removeFileExtension;
         data.prependFolderName = data.prependFolderName === undefined ? true : data.prependFolderName;
         data.scale = data.scale || 1;
         data.filter = getFilterByType(data.filter) ? data.filter : filters[0].type;
@@ -125,7 +124,6 @@ class PackProperties extends React.Component {
         
         data.textureName = ReactDOM.findDOMNode(this.refs.textureName).value;
         data.textureFormat = ReactDOM.findDOMNode(this.refs.textureFormat).value;
-        data.removeFileExtension = ReactDOM.findDOMNode(this.refs.removeFileExtension).checked;
         data.prependFolderName = ReactDOM.findDOMNode(this.refs.prependFolderName).checked;
         data.base64Export = ReactDOM.findDOMNode(this.refs.base64Export).checked;
         data.tinify = ReactDOM.findDOMNode(this.refs.tinify).checked;
@@ -156,7 +154,6 @@ class PackProperties extends React.Component {
     refreshPackOptions() {
         ReactDOM.findDOMNode(this.refs.textureName).value = this.packOptions.textureName;
         ReactDOM.findDOMNode(this.refs.textureFormat).value = this.packOptions.textureFormat;
-        ReactDOM.findDOMNode(this.refs.removeFileExtension).checked = this.packOptions.removeFileExtension;
         ReactDOM.findDOMNode(this.refs.prependFolderName).checked = this.packOptions.prependFolderName;
         ReactDOM.findDOMNode(this.refs.base64Export).checked = this.packOptions.base64Export;
         ReactDOM.findDOMNode(this.refs.tinify).checked = this.packOptions.tinify;
@@ -283,11 +280,6 @@ class PackProperties extends React.Component {
                                         <option value="jpg">jpg</option>
                                     </select>
                                 </td>
-                                <td></td>
-                            </tr>
-                            <tr title={I18.f("REMOVE_FILE_EXT_TITLE")}>
-                                <td>{I18.f("REMOVE_FILE_EXT")}</td>
-                                <td><input ref="removeFileExtension" className="border-color-gray" type="checkbox" defaultChecked={this.packOptions.removeFileExtension ? "checked" : ""} onChange={this.onExporterPropChanged} /></td>
                                 <td></td>
                             </tr>
                             <tr title={I18.f("PREPEND_FOLDER_TITLE")}>

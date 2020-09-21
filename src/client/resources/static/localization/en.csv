@@ -26,8 +26,6 @@ TEXTURE_NAME;Texture name:
 TEXTURE_NAME_TITLE;Texture name for export
 TEXTURE_FORMAT;Texture format:
 TEXTURE_FORMAT_TITLE;Texture format for export
-REMOVE_FILE_EXT;Remove file ext:
-REMOVE_FILE_EXT_TITLE;Remove file ext in sprites name
 PREPEND_FOLDER;Prepend folder name:
 PREPEND_FOLDER_TITLE;Prepend folder name to file name
 BASE64_EXPORT_TITLE;Export to base64 format (if possible)

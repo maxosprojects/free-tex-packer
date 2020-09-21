@@ -71,12 +71,6 @@ function prepareData(data, options) {
             name.trim();
         }
 
-        if(options.removeFileExtension) {
-            let parts = name.split(".");
-            if(parts.length > 1) parts.pop();
-            name = parts.join(".");
-        }
-
         if(!options.prependFolderName) {
             name = name.split("/").pop();
         }
