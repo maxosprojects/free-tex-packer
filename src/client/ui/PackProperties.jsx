@@ -46,6 +46,7 @@ class PackProperties extends React.Component {
     
     setOptions(data) {
         this.packOptions = this.applyOptionsDefaults(data);
+        this.setState({packer: this.packOptions.packer});
         this.saveOptions();
         this.refreshPackOptions();
         this.emitChanges();
