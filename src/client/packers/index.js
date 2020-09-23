@@ -1,11 +1,13 @@
 import MaxRectsPacker from "./MaxRectsPacker";
 import MaxRectsBin from "./MaxRectsBin";
 import OptimalPacker from "./OptimalPacker";
+import LinePerDir from './LinePerDir.js';
 
 const list = [
     MaxRectsBin,
     MaxRectsPacker,
-    OptimalPacker
+    OptimalPacker,
+    LinePerDir
 ];
 
 function getPackerByType(type) {
