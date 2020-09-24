@@ -10,7 +10,7 @@ import ImagesTree from './ImagesTree.jsx';
 
 import FileSystem from 'platform/FileSystem';
 
-import {smartSortImages, addImagesToList, findImageByName, findIndexByImgName} from '../utils/common';
+import {addImagesToList, findImageByName, findIndexByImgName} from '../utils/common';
 
 let INSTANCE = null;
 
@@ -189,8 +189,6 @@ class ImagesList extends React.Component {
             
             addImagesToList(images, list);
 
-            // images = this.sortImages(images);
-
             this.setState({images: images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
         }
@@ -198,23 +196,10 @@ class ImagesList extends React.Component {
 
     imagesImported(images) {
         this.setState({
-            images: {}
+            images: []
         }, this.loadImagesComplete.bind(this, images));
     }
     
-    sortImages(images) {
-        let names = Object.keys(images);
-        names.sort(smartSortImages);
-
-        let sorted = {};
-        
-        for(let name of names) {
-            sorted[name] = images[name];
-        }
-        
-        return sorted;
-    }
-
     clear() {
         if(this.state.images.length) {
             let buttons = {
@@ -468,8 +453,6 @@ class ImagesList extends React.Component {
         }
         
         if(deletedCount > 0) {
-            // images = this.sortImages(images);
-
             this.setState({images});
             Observer.emit(GLOBAL_EVENT.IMAGES_LIST_CHANGED, images);
         }

@@ -81,14 +81,17 @@ class SheetSplitter extends React.Component {
     doImport() {
         let files = this.splitIntoFiles();
 
-        let images = {};
+        let images = [];
         
         files.forEach(aFile => {
             let img = new Image();
             let base64Image = 'data:image/' + aFile.ext + ';base64,' + aFile.base64
             img.src = base64Image;
             img._base64 = base64Image;
-            images[aFile.name] = img;
+            let parts = aFile.name.split('/').pop().split('.');
+            parts.pop();
+            img.name = parts.join('.');
+            images.push(img);
         });
 
         Observer.emit(GLOBAL_EVENT.IMAGES_IMPORTED, images);
@@ -180,11 +183,9 @@ class SheetSplitter extends React.Component {
 
             let loader = new LocalImagesLoader();
             loader.load(e.target.files, null, data => {
-                let keys = Object.keys(data);
+                this.textureName = data[0].name; 
                 
-                this.textureName = keys[0]; 
-                
-                this.texture = data[this.textureName];
+                this.texture = data[0];
                 ReactDOM.findDOMNode(this.refs.textureName).innerHTML = this.textureName;
                 
                 this.updateView();
