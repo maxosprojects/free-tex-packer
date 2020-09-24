@@ -28,6 +28,7 @@ class SheetSplitter extends React.Component {
         this.texture = null;
         this.data = null;
         this.frames = null;
+        this.path = null;
         
         this.textureName = '';
         this.dataName = '';
@@ -91,6 +92,9 @@ class SheetSplitter extends React.Component {
             let parts = aFile.name.split('.');
             parts.pop();
             img.name = parts.join('.');
+            if (this.path !== undefined) {
+                img.path = this.path;
+            }
             images.push(img);
         });
 
@@ -181,8 +185,12 @@ class SheetSplitter extends React.Component {
         if(e.target.files.length) {
             Observer.emit(GLOBAL_EVENT.SHOW_SHADER);
 
+            this.path = null;
             let loader = new LocalImagesLoader();
             loader.load(e.target.files, null, data => {
+                if (data[0].path !== undefined) {
+                    this.path = data[0].path;
+                }
                 this.textureName = data[0].name; 
                 
                 this.texture = data[0];

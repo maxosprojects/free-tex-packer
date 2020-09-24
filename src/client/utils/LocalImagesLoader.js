@@ -43,6 +43,9 @@ class LocalImagesLoader {
                 img.src = e.target.result;
                 img._base64 = e.target.result;
                 img.name = item.name;
+                if (item.path !== undefined) {
+                    img.path = item.path;
+                }
 
                 addImageToList(this.loaded, img);
                 this.loadedCnt++;
