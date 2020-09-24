@@ -39973,7 +39973,7 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
         var base64Image = 'data:image/' + aFile.ext + ';base64,' + aFile.base64;
         img.src = base64Image;
         img._base64 = base64Image;
-        var parts = aFile.name.split('/').pop().split('.');
+        var parts = aFile.name.split('.');
         parts.pop();
         img.name = parts.join('.');
         images.push(img);

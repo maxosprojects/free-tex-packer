@@ -88,7 +88,7 @@ class SheetSplitter extends React.Component {
             let base64Image = 'data:image/' + aFile.ext + ';base64,' + aFile.base64
             img.src = base64Image;
             img._base64 = base64Image;
-            let parts = aFile.name.split('/').pop().split('.');
+            let parts = aFile.name.split('.');
             parts.pop();
             img.name = parts.join('.');
             images.push(img);
