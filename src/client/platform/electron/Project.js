@@ -99,7 +99,9 @@ class Project {
     }
     
     static saveAs(currProjPath) {
-        let inMemoryImages = APP.i.images.filter(img => img.path === undefined);
+        let inMemoryImages = APP.i.images
+            .filter(img => img.path === undefined)
+            .map(img => img.name);
 
         if (inMemoryImages.length > 0) {
             Observer.emit(GLOBAL_EVENT.SHOW_MESSAGE, I18.f("IN_MEMORY_IMAGES_ERROR", inMemoryImages.join(', ')));
