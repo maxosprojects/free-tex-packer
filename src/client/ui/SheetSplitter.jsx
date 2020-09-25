@@ -262,13 +262,7 @@ class SheetSplitter extends React.Component {
     updateFrames() {
         if(!this.texture) return;
         
-        this.state.splitter.split(this.data, {
-            textureWidth: this.texture.width,
-            textureHeight: this.texture.height,
-            width: ReactDOM.findDOMNode(this.refs.width).value * 1 || 32,
-            height: ReactDOM.findDOMNode(this.refs.height).value * 1 || 32,
-            padding: ReactDOM.findDOMNode(this.refs.padding).value * 1 || 0
-        }, frames => {
+        function cb(frames) {
             if(frames) {
                 this.frames = frames;
 
@@ -298,7 +292,19 @@ class SheetSplitter extends React.Component {
                 }
 
             }
-        });
+        };
+
+        try {
+            this.state.splitter.split(this.data, {
+                textureWidth: this.texture.width,
+                textureHeight: this.texture.height,
+                width: ReactDOM.findDOMNode(this.refs.width).value * 1 || 32,
+                height: ReactDOM.findDOMNode(this.refs.height).value * 1 || 32,
+                padding: ReactDOM.findDOMNode(this.refs.padding).value * 1 || 0
+            }, cb);
+        } catch (err) {
+            console.error(err);
+        }
     }
     
     updateView() {
