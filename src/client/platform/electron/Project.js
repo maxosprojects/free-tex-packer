@@ -99,15 +99,6 @@ class Project {
     }
     
     static saveAs(currProjPath) {
-        let inMemoryImages = APP.i.images
-            .filter(img => img.path === undefined)
-            .map(img => img.name);
-
-        if (inMemoryImages.length > 0) {
-            Observer.emit(GLOBAL_EVENT.SHOW_MESSAGE, I18.f("IN_MEMORY_IMAGES_ERROR", inMemoryImages.join(', ')));
-            return;
-        }
-
         let path = FileSystem.saveProject(Project.getData(), currProjPath);
         if(path) {
             CURRENT_PROJECT_PATH = path;

@@ -8,6 +8,7 @@ import {getDefaultSplitter} from '../splitters';
 import LocalImagesLoader from "../utils/LocalImagesLoader";
 import ReactDOM from "react-dom";
 import Downloader from "platform/Downloader";
+import {isSplitterSupported, getSupportedSplitters} from 'platform/SplitterImportSupport';
 
 class SheetSplitter extends React.Component {
     constructor(props) {
@@ -80,6 +81,13 @@ class SheetSplitter extends React.Component {
     }
 
     doImport() {
+        if (!isSplitterSupported(this.state.splitter)) {
+            Observer.emit(GLOBAL_EVENT.SHOW_MESSAGE, I18.f("SPLITTER_IMPORT_NOT_SUPPORTED", getSupportedSplitters()));
+            return;
+        }
+
+        Observer.emit(GLOBAL_EVENT.SHOW_SHADER);
+
         let files = this.splitIntoFiles();
 
         let images = [];
@@ -99,6 +107,7 @@ class SheetSplitter extends React.Component {
         });
 
         Observer.emit(GLOBAL_EVENT.IMAGES_IMPORTED, images);
+        Observer.emit(GLOBAL_EVENT.HIDE_SHADER);
     }
     
     doSplit() {

@@ -52,10 +52,18 @@ function addImagesToList(imageList, anotherListOfImages) {
     }
 }
 
+function formatEnumeration(names) {
+    if (names.length < 3) {
+        return names.join(' and ');
+    }
+    return names.slice(0, -1).join(', ') + ' and ' + names.slice(-1);
+}
+
 module.exports = {
     smartSortImages,
     findIndexByImgName,
     findImageByName,
     addImageToList,
-    addImagesToList
+    addImagesToList,
+    formatEnumeration
 };
