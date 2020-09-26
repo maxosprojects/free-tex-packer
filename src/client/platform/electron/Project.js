@@ -44,6 +44,9 @@ class Project {
                 name: img.name,
                 path: img.path
             };
+            if (img.frame != undefined) {
+                image.frame = img.frame;
+            }
             images.push(image);
         }
         

@@ -6,6 +6,7 @@ import Controller from 'platform/Controller';
 import I18 from '../../utils/I18';
 import Base64ImagesLoader from '../../utils/Base64ImagesLoader';
 import {Observer, GLOBAL_EVENT} from '../../Observer';
+import FrameCutter from '../../utils/FrameCutter';
 
 const IMAGES_EXT = ['jpg', 'png', 'gif'];
 
@@ -129,11 +130,16 @@ class FileSystem {
                 try {
                     let content = fs.readFileSync(path, 'base64');
                     content = "data:image/" + ext + ";base64," + content;
-                    files.push({
+                    let imgFile = {
                         name: item.name,
                         url: content,
-                        path: item.path
-                    });
+                        path: item.path,
+                        ext
+                    };
+                    if (item.frame !== undefined) {
+                        imgFile.frame = item.frame;
+                    }
+                    files.push(imgFile);
                 }
                 catch(e){}
             }
@@ -141,7 +147,15 @@ class FileSystem {
 
         let loader = new Base64ImagesLoader();
         loader.load(files, null, (res) => {
-            if(cb) cb(res);
+            let cutter = new FrameCutter();
+            let finalized = res.map(img => {
+                if (img.frame === undefined) {
+                    return img;
+                }
+                return cutter.cut(img, img.frame, img.ext);
+            });
+
+            if(cb) cb(finalized);
         });
     }
     

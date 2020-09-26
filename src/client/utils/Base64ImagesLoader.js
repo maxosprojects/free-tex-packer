@@ -22,6 +22,10 @@ class Base64ImagesLoader {
             img._base64 = item.url;
             img.path = item.path;
             img.name = item.name;
+            img.ext = item.ext;
+            if (item.frame !== undefined) {
+                img.frame = item.frame;
+            }
 
             addImageToList(this.loaded, img);
         }

@@ -104,6 +104,7 @@ class SheetSplitter extends React.Component {
             if (this.path !== undefined) {
                 img.path = this.path;
             }
+            img.frame = aFile.frame;
             images.push(img);
         });
 
@@ -158,9 +159,7 @@ class SheetSplitter extends React.Component {
                     item.spriteSourceSize.h, item.spriteSourceSize.w);
                 
                 ctx.restore();
-            }
-            else {
-                
+            } else {
                 let dx = trimmed ? 0 : item.spriteSourceSize.x;
                 let dy = trimmed ? 0 : item.spriteSourceSize.y;
                 
@@ -176,7 +175,7 @@ class SheetSplitter extends React.Component {
                 ext = 'png';
                 item.name += '.' + ext;
             }
-            
+
             let base64 = this.buffer.toDataURL(ext === 'png' ? 'image/png' : 'image/jpeg');
             base64 = base64.split(',').pop();
 
@@ -184,7 +183,13 @@ class SheetSplitter extends React.Component {
                 name: item.name,
                 content: base64,
                 base64: base64,
-                ext
+                ext,
+                frame: {
+                    x: item.frame.x,
+                    y: item.frame.y,
+                    width: item.frame.w,
+                    height: item.frame.h
+                }
             });
         }
 
