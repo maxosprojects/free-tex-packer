@@ -2837,12 +2837,21 @@ function addImagesToList(imageList, anotherListOfImages) {
   }
 }
 
+function formatEnumeration(names) {
+  if (names.length < 3) {
+    return names.join(' and ');
+  }
+
+  return names.slice(0, -1).join(', ') + ' and ' + names.slice(-1);
+}
+
 module.exports = {
   smartSortImages: smartSortImages,
   findIndexByImgName: findIndexByImgName,
   findImageByName: findImageByName,
   addImageToList: addImageToList,
-  addImagesToList: addImagesToList
+  addImagesToList: addImagesToList,
+  formatEnumeration: formatEnumeration
 };
 
 /***/ }),
@@ -34815,6 +34824,11 @@ var LocalImagesLoader_LocalImagesLoader = /*#__PURE__*/function () {
           img.src = e.target.result;
           img._base64 = e.target.result;
           img.name = item.name;
+
+          if (item.path !== undefined) {
+            img.path = item.path;
+          }
+
           Object(common["addImageToList"])(_this.loaded, img);
           _this.loadedCnt++;
 
@@ -39847,6 +39861,16 @@ function getDefaultSplitter() {
 
 
 /* harmony default export */ var splitters = (splitters_list);
+// CONCATENATED MODULE: ./src/client/platform/web/SplitterImportSupport.js
+function isSplitterSupported(splitter) {
+  return true;
+}
+
+function getSupportedSplitters() {
+  return 'All';
+}
+
+
 // CONCATENATED MODULE: ./src/client/ui/SheetSplitter.jsx
 function SheetSplitter_typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { SheetSplitter_typeof = function _typeof(obj) { return typeof obj; }; } else { SheetSplitter_typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return SheetSplitter_typeof(obj); }
 
@@ -39885,6 +39909,7 @@ function SheetSplitter_getPrototypeOf(o) { SheetSplitter_getPrototypeOf = Object
 
 
 
+
 var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
   SheetSplitter_inherits(SheetSplitter, _React$Component);
 
@@ -39908,6 +39933,7 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
     _this.texture = null;
     _this.data = null;
     _this.frames = null;
+    _this.path = null;
     _this.textureName = '';
     _this.dataName = '';
     _this.buffer = document.createElement('canvas');
@@ -39917,6 +39943,7 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
     _this.selectTexture = _this.selectTexture.bind(SheetSplitter_assertThisInitialized(_this));
     _this.selectDataFile = _this.selectDataFile.bind(SheetSplitter_assertThisInitialized(_this));
     _this.updateFrames = _this.updateFrames.bind(SheetSplitter_assertThisInitialized(_this));
+    _this.doUpdateFrames = _this.doUpdateFrames.bind(SheetSplitter_assertThisInitialized(_this));
     _this.updateView = _this.updateView.bind(SheetSplitter_assertThisInitialized(_this));
     _this.changeSplitter = _this.changeSplitter.bind(SheetSplitter_assertThisInitialized(_this));
     _this.setBack = _this.setBack.bind(SheetSplitter_assertThisInitialized(_this));
@@ -39966,6 +39993,14 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "doImport",
     value: function doImport() {
+      var _this2 = this;
+
+      if (!isSplitterSupported(this.state.splitter)) {
+        Observer.emit(GLOBAL_EVENT.SHOW_MESSAGE, utils_I18.f("SPLITTER_IMPORT_NOT_SUPPORTED", getSupportedSplitters()));
+        return;
+      }
+
+      Observer.emit(GLOBAL_EVENT.SHOW_SHADER);
       var files = this.splitIntoFiles();
       var images = [];
       files.forEach(function (aFile) {
@@ -39976,9 +40011,16 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
         var parts = aFile.name.split('.');
         parts.pop();
         img.name = parts.join('.');
+
+        if (_this2.path !== undefined) {
+          img.path = _this2.path;
+        }
+
+        img.frame = aFile.frame;
         images.push(img);
       });
       Observer.emit(GLOBAL_EVENT.IMAGES_IMPORTED, images);
+      Observer.emit(GLOBAL_EVENT.HIDE_SHADER);
     }
   }, {
     key: "doSplit",
@@ -40041,7 +40083,13 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
             name: item.name,
             content: base64,
             base64: base64,
-            ext: ext
+            ext: ext,
+            frame: {
+              x: item.frame.x,
+              y: item.frame.y,
+              width: item.frame.w,
+              height: item.frame.h
+            }
           });
         }
       } catch (err) {
@@ -40055,17 +40103,22 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "selectTexture",
     value: function selectTexture(e) {
-      var _this2 = this;
+      var _this3 = this;
 
       if (e.target.files.length) {
         Observer.emit(GLOBAL_EVENT.SHOW_SHADER);
+        this.path = null;
         var loader = new utils_LocalImagesLoader();
         loader.load(e.target.files, null, function (data) {
-          _this2.textureName = data[0].name;
-          _this2.texture = data[0];
-          react_dom_default.a.findDOMNode(_this2.refs.textureName).innerHTML = _this2.textureName;
+          if (data[0].path !== undefined) {
+            _this3.path = data[0].path;
+          }
 
-          _this2.updateView();
+          _this3.textureName = data[0].name;
+          _this3.texture = data[0];
+          react_dom_default.a.findDOMNode(_this3.refs.textureName).innerHTML = _this3.textureName;
+
+          _this3.updateView();
 
           Observer.emit(GLOBAL_EVENT.HIDE_SHADER);
         });
@@ -40092,7 +40145,7 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "selectDataFile",
     value: function selectDataFile(e) {
-      var _this3 = this;
+      var _this4 = this;
 
       if (e.target.files.length) {
         var item = e.target.files[0];
@@ -40103,15 +40156,15 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
           content = content.split(',');
           content.shift();
           content = atob(content);
-          _this3.data = content;
-          _this3.dataName = item.name;
-          react_dom_default.a.findDOMNode(_this3.refs.dataFileName).innerHTML = _this3.dataName;
-          getSplitterByData(_this3.data, function (splitter) {
-            _this3.setState({
+          _this4.data = content;
+          _this4.dataName = item.name;
+          react_dom_default.a.findDOMNode(_this4.refs.dataFileName).innerHTML = _this4.dataName;
+          getSplitterByData(_this4.data, function (splitter) {
+            _this4.setState({
               splitter: splitter
             });
 
-            _this3.updateView();
+            _this4.updateView();
           });
         };
 
@@ -40119,55 +40172,61 @@ var SheetSplitter_SheetSplitter = /*#__PURE__*/function (_React$Component) {
       }
     }
   }, {
+    key: "doUpdateFrames",
+    value: function doUpdateFrames(frames) {
+      if (frames) {
+        this.frames = frames;
+        var canvas = react_dom_default.a.findDOMNode(this.refs.view);
+        var ctx = canvas.getContext('2d');
+
+        var _iterator2 = SheetSplitter_createForOfIteratorHelper(this.frames),
+            _step2;
+
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var item = _step2.value;
+            var frame = item.frame;
+            var w = frame.w,
+                h = frame.h;
+
+            if (item.rotated) {
+              w = frame.h;
+              h = frame.w;
+            }
+
+            ctx.strokeStyle = "#00F";
+            ctx.fillStyle = "rgba(0,0,255,0.25)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.fillRect(frame.x, frame.y, w, h);
+            ctx.rect(frame.x, frame.y, w, h);
+            ctx.moveTo(frame.x, frame.y);
+            ctx.lineTo(frame.x + w, frame.y + h);
+            ctx.stroke();
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+      }
+    }
+  }, {
     key: "updateFrames",
     value: function updateFrames() {
-      var _this4 = this;
-
       if (!this.texture) return;
-      this.state.splitter.split(this.data, {
-        textureWidth: this.texture.width,
-        textureHeight: this.texture.height,
-        width: react_dom_default.a.findDOMNode(this.refs.width).value * 1 || 32,
-        height: react_dom_default.a.findDOMNode(this.refs.height).value * 1 || 32,
-        padding: react_dom_default.a.findDOMNode(this.refs.padding).value * 1 || 0
-      }, function (frames) {
-        if (frames) {
-          _this4.frames = frames;
-          var canvas = react_dom_default.a.findDOMNode(_this4.refs.view);
-          var ctx = canvas.getContext('2d');
 
-          var _iterator2 = SheetSplitter_createForOfIteratorHelper(_this4.frames),
-              _step2;
-
-          try {
-            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-              var item = _step2.value;
-              var frame = item.frame;
-              var w = frame.w,
-                  h = frame.h;
-
-              if (item.rotated) {
-                w = frame.h;
-                h = frame.w;
-              }
-
-              ctx.strokeStyle = "#00F";
-              ctx.fillStyle = "rgba(0,0,255,0.25)";
-              ctx.lineWidth = 1;
-              ctx.beginPath();
-              ctx.fillRect(frame.x, frame.y, w, h);
-              ctx.rect(frame.x, frame.y, w, h);
-              ctx.moveTo(frame.x, frame.y);
-              ctx.lineTo(frame.x + w, frame.y + h);
-              ctx.stroke();
-            }
-          } catch (err) {
-            _iterator2.e(err);
-          } finally {
-            _iterator2.f();
-          }
-        }
-      });
+      try {
+        this.state.splitter.split(this.data, {
+          textureWidth: this.texture.width,
+          textureHeight: this.texture.height,
+          width: react_dom_default.a.findDOMNode(this.refs.width).value * 1 || 32,
+          height: react_dom_default.a.findDOMNode(this.refs.height).value * 1 || 32,
+          padding: react_dom_default.a.findDOMNode(this.refs.padding).value * 1 || 0
+        }, this.doUpdateFrames);
+      } catch (err) {
+        console.error(err);
+      }
     }
   }, {
     key: "updateView",

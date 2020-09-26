@@ -138,4 +138,4 @@ SPLITTER;Split / Import sheet
 SPLITTER_ERROR_NO_FRAMES;Sprites not found. Probably, atlas format is incorrect.
 HOLD_TRIM;Hold trim:
 EDIT_IMAGE_FRAME_NAME;Edit frame name:
-IN_MEMORY_IMAGES_ERROR;The following images can't be included in the project as they are not actual files, but were generated in memory: %s
+SPLITTER_IMPORT_NOT_SUPPORTED;Import is only supported for %s formats
