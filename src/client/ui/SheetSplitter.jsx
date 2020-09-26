@@ -42,6 +42,7 @@ class SheetSplitter extends React.Component {
         this.selectTexture = this.selectTexture.bind(this);
         this.selectDataFile = this.selectDataFile.bind(this);
         this.updateFrames = this.updateFrames.bind(this);
+        this.doUpdateFrames = this.doUpdateFrames.bind(this);
         this.updateView = this.updateView.bind(this);
         this.changeSplitter = this.changeSplitter.bind(this);       
         this.setBack = this.setBack.bind(this);       
@@ -258,42 +259,42 @@ class SheetSplitter extends React.Component {
             reader.readAsDataURL(item);
         }
     }
-    
+
+    doUpdateFrames(frames) {
+        if(frames) {
+            this.frames = frames;
+
+            let canvas = ReactDOM.findDOMNode(this.refs.view);
+            let ctx = canvas.getContext('2d');
+
+            for(let item of this.frames) {
+                let frame = item.frame;
+
+                let w = frame.w, h = frame.h;
+                if(item.rotated) {
+                    w = frame.h;
+                    h = frame.w;
+                }
+
+                ctx.strokeStyle = "#00F";
+                ctx.fillStyle = "rgba(0,0,255,0.25)";
+                ctx.lineWidth = 1;
+
+                ctx.beginPath();
+                ctx.fillRect(frame.x, frame.y, w, h);
+                ctx.rect(frame.x, frame.y, w, h);
+                ctx.moveTo(frame.x, frame.y);
+                ctx.lineTo(frame.x + w, frame.y + h);
+                ctx.stroke();
+
+            }
+
+        }
+    }
+
     updateFrames() {
         if(!this.texture) return;
         
-        function cb(frames) {
-            if(frames) {
-                this.frames = frames;
-
-                let canvas = ReactDOM.findDOMNode(this.refs.view);
-                let ctx = canvas.getContext('2d');
-
-                for(let item of this.frames) {
-                    let frame = item.frame;
-
-                    let w = frame.w, h = frame.h;
-                    if(item.rotated) {
-                        w = frame.h;
-                        h = frame.w;
-                    }
-
-                    ctx.strokeStyle = "#00F";
-                    ctx.fillStyle = "rgba(0,0,255,0.25)";
-                    ctx.lineWidth = 1;
-
-                    ctx.beginPath();
-                    ctx.fillRect(frame.x, frame.y, w, h);
-                    ctx.rect(frame.x, frame.y, w, h);
-                    ctx.moveTo(frame.x, frame.y);
-                    ctx.lineTo(frame.x + w, frame.y + h);
-                    ctx.stroke();
-
-                }
-
-            }
-        };
-
         try {
             this.state.splitter.split(this.data, {
                 textureWidth: this.texture.width,
@@ -301,7 +302,7 @@ class SheetSplitter extends React.Component {
                 width: ReactDOM.findDOMNode(this.refs.width).value * 1 || 32,
                 height: ReactDOM.findDOMNode(this.refs.height).value * 1 || 32,
                 padding: ReactDOM.findDOMNode(this.refs.padding).value * 1 || 0
-            }, cb);
+            }, this.doUpdateFrames);
         } catch (err) {
             console.error(err);
         }
