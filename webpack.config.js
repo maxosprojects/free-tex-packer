@@ -50,7 +50,7 @@ else {
 let config = {
     entry: entry,
     output: {
-        path: __dirname + (PLATFORM === 'web' ? "/docs" : "dist"),
+        path: __dirname + (PLATFORM === 'web' ? "/docs" : "/dist"),
         filename: output
     },
     devtool: devtool,

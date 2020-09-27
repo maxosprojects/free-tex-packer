@@ -4,7 +4,6 @@ const argv = require('optimist').argv;
 const windowStateKeeper = require('electron-window-state');
 const {app, BrowserWindow, ipcMain, Menu, shell} = require('electron');
 const {autoUpdater} = require("electron-updater");
-const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 
 let mainWindow;
 let RECENT_PROJECTS = [];
@@ -20,6 +19,7 @@ function createWindow() {
 	let h = 700;
 
     if (argv.env === 'development') {
+        const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
         installExtension(REACT_DEVELOPER_TOOLS)
             .then((name) => console.log(`Added Extension:  ${name}`))
             .catch((err) => console.log('An error occurred: ', err));
